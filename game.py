@@ -1,9 +1,17 @@
 import random
 
+# Lore variables - set the backstory elements here
+BLACKWOOD_TRAGEDY = "a family murder-suicide" # Options: "a family murder-suicide", "a dark curse", "a terrible accident"
+MANSION_PURPOSE = "a secluded research lab" # Options: "a secluded research lab", "a place of lavish parties", "a religious retreat gone wrong"
+HORROR_SOURCE = "a malevolent entity" # Options: "a malevolent entity", "restless ghosts", "psychological manifestation"
+
+lore_hints_found = set() # Keep track of lore hints found by the player
+
 def creepy_intro():
     print("The rusted gates of Blackwood Mansion swing shut with a mournful clang, sealing you within the estate's suffocating embrace.  A chilling wind whispers through the ancient oaks, carrying the scent of damp earth and decay.")
     print("The mansion looms before you, a gothic monolith against the bruised purple of the twilight sky. Its darkened windows stare like vacant eyes, promising no solace, only secrets.")
-    print("You came seeking answers, lured by local legends of a family tragedy and whispers of restless spirits. Now, trapped within its crumbling walls, the thrill of investigation has curdled into icy dread.")
+    print(f"Local legends whisper of {BLACKWOOD_TRAGEDY} that befell the Blackwood family within these walls. Some say the mansion was originally {MANSION_PURPOSE}, a place now tainted by darkness.")
+    print(f"You came seeking answers, lured by these tales and whispers of {HORROR_SOURCE}. Now, trapped within its crumbling walls, the thrill of investigation has curdled into icy dread.")
     print("A palpable sense of unease settles upon you. The very stones of Blackwood Mansion seem to breathe with a dark sentience. Escape is paramount, but the mansion itself seems unwilling to release you.")
     print("Your heart pounds a frantic rhythm against your ribs. Will you unravel the mysteries of Blackwood Mansion and escape its grasp? Or will you become another forgotten soul lost within its shadowed halls?")
     print()
@@ -37,6 +45,25 @@ def random_event():
         "Dust motes swirl around you in an unnatural vortex, forming fleeting, ghostly shapes.",
         "The faint scent of ozone fills the air, like the aftermath of a violent storm, though the sky outside is clear."
     ]
+    if HORROR_SOURCE == "restless ghosts":
+        events.extend([
+            "A spectral figure flickers at the edge of your vision, then vanishes.",
+            "You feel a cold touch on your arm, though no one is there.",
+            "Objects seem to move slightly on their own."
+        ])
+    elif HORROR_SOURCE == "malevolent entity":
+        events.extend([
+            "You feel an oppressive sense of being watched by something unseen.",
+            "The shadows seem to deepen and pulse with a dark energy.",
+            "A sense of dread washes over you, heavier than before."
+        ])
+    elif HORROR_SOURCE == "psychological manifestation":
+        events.extend([
+            "Familiar sounds from your past echo faintly around you, distorted and unsettling.",
+            "You begin to doubt your senses, unsure if what you see is real.",
+            "A wave of paranoia washes over you, making you distrust your own thoughts."
+        ])
+
     if random.random() < 0.5: # Increased event frequency
         print(random.choice(events))
         print()
@@ -88,6 +115,9 @@ def garden_maze():
 
 def hallway():
     print("You find yourself in the main hallway. The air hangs heavy, thick with the scent of dust, decay, and something else... something faintly metallic and unsettling. To your left, a grand staircase, its once-ornate wood now splintered and groaning, ascends into the oppressive darkness above. Straight ahead, a shadowed archway promises deeper mysteries within the house. To your right, a heavy oak door, intricately carved with scenes of hunting hounds and stags, stands slightly ajar, emitting a sliver of light.")
+    if "hallway_portrait_hint" not in lore_hints_found and random.random() < 0.6:
+        print("A large, imposing portrait dominates the wall at the end of the hallway. It depicts a stern-faced man in formal attire, presumably a Blackwood ancestor. His eyes seem to follow you as you move.")
+        lore_hints_found.add("hallway_portrait_hint") # Mark hint as found
     random_event()
     choice = make_choice("Which direction will you take to explore Blackwood Mansion?", ["Ascend the creaking staircase to the upper floors.", "Venture through the shadowed archway deeper into the mansion.", "Carefully open the oak door to your right."])
     if choice == 0:
@@ -98,7 +128,13 @@ def hallway():
         dining_room() # New location - dining room
 
 def dining_room():
-    print("You cautiously push open the heavy oak door and step into what must have once been the grand dining room.  A long, mahogany table dominates the center of the room, draped in a moth-eaten, white linen cloth.  Dust-laden silverware and half-rotted place settings remain, as if the occupants simply vanished mid-meal.  A cold draft emanates from a massive, stone fireplace at the far end of the room, now choked with debris and cobwebs. The air is heavy with the lingering aroma of stale food and something faintly… gamey.")
+    print("You cautiously push open the heavy oak door and enter what must have once been the grand dining room.  A long, mahogany table dominates the center of the room, draped in a moth-eaten, white linen cloth.  Dust-laden silverware and half-rotted place settings remain, as if the occupants simply vanished mid-meal.  A cold draft emanates from a massive, stone fireplace at the far end of the room, now choked with debris and cobwebs. The air is heavy with the lingering aroma of stale food and something faintly… gamey.")
+    if "dining_room_note_hint" not in lore_hints_found and random.random() < 0.5:
+        print("On the table, amidst the decaying food, you spot a slightly less decayed piece of paper. It seems to be a hastily scribbled note.")
+        choice = make_choice("Do you try to read the note?", ["Yes, carefully examine the note.", "No, the stench is too much, leave it be."])
+        if choice == 0:
+            print("\nYou carefully pick up the note. It reads, in faded ink: '...cannot contain it... experiments... gone too far... beware the cellar...' The rest is illegible.")
+            lore_hints_found.add("dining_room_note_hint")
     random_event()
     choice = make_choice("What will you investigate in this unsettling dining room?", ["Examine the long, laden dining table and its decaying feast.", "Approach the cold, cavernous fireplace and peer within."])
     if choice == 0:
@@ -123,6 +159,34 @@ def chapel_hidden_passage():
         chapel() # New location - chapel
     else:
         dining_room() # Back to dining room choices
+
+
+def chapel():
+    print("You emerge into a small, hidden chapel.  Faint light filters through a stained-glass window depicting a sorrowful angel with weeping eyes.  The air is heavy with the scent of incense and damp stone.  A single, overturned pew lies on the cold stone floor, and an altar at the far end is draped in black cloth.  A sense of forgotten devotion and lingering despair permeates the space.")
+    if "chapel_diary_hint" not in lore_hints_found and random.random() < 0.7:
+        print("On the altar, partially hidden beneath the black cloth, you find a small, leather-bound diary.")
+        choice = make_choice("Do you examine the diary?", ["Yes, open and read the diary.", "No, leave it undisturbed, the chapel feels too unsettling."])
+        if choice == 0:
+            print("\nYou open the diary. The pages are brittle and filled with frantic handwriting. You read: '...rituals... for power... family demanded it... something answered... wrong... so wrong... now it haunts us all...' The last entry is abruptly cut off.")
+            lore_hints_found.add("chapel_diary_hint")
+    random_event()
+    choice = make_choice("What do you do in this hidden chapel?", ["Examine the overturned pew, is anything hidden beneath it?", "Approach the altar and inspect it more closely."])
+    if choice == 0:
+        death_ending_chapel_pew() # Risky choice - pew death
+    else:
+        survival_ending_chapel_altar() # Lucky choice - altar survival
+
+def death_ending_chapel_pew():
+    print("\nYou attempt to lift the heavy, overturned pew. As you strain, the ground beneath you gives way! You plunge downwards into a hidden pit, landing with a sickening thud.")
+    print("The air is thick with the stench of decay and something else… something sulfurous.  From the darkness below, you hear a low, guttural growl approaching. Your cries for help are swallowed by the earth. The chapel's secrets claim you.")
+    print("Death Ending: Pitfall in the Chapel.")
+
+def survival_ending_chapel_altar():
+    print("\nYou approach the altar and carefully examine the black cloth. As you lift a corner, you discover a small, silver locket hidden beneath.  It's cold to the touch and engraved with the Blackwood family crest.")
+    print("As you touch the locket, a faint warmth spreads through you, and the oppressive atmosphere of the chapel seems to lighten slightly. You feel a sense of… protection? Perhaps this locket holds some significance. You decide to keep it.")
+    player_inventory.append("silver_locket") # Add locket to inventory
+    print("You feel a renewed sense of purpose.  Perhaps this locket can aid you in your escape. You decide to return to the hallway and explore other areas of the mansion.")
+    hallway() # Go back to hallway
 
 
 def kitchen():
@@ -203,6 +267,9 @@ def attic_from_library():
 
 def attic():
     print("You ascend the hidden staircase and emerge into the dusty, oppressive attic.  Moonlight, weak and spectral, filters through cracks in the boarded-up windows, barely illuminating the vast, cluttered space. Cobwebs hang thick as shrouds, draping forgotten furniture and casting eerie shadows. The air is stifling, thick with dust and the cloying sweetness of decay. The silence is broken only by the frantic scurrying of unseen creatures in the rafters above.")
+    if "attic_child_drawing_hint" not in lore_hints_found and random.random() < 0.4:
+        print("Tucked away beneath a dust-covered rocking horse, you find a child's drawing. It depicts stick figures huddled around a dark shape with red eyes, and the word 'Monster' scrawled beneath in shaky handwriting.")
+        lore_hints_found.add("attic_child_drawing_hint")
     random_event()
     choice = make_choice("What will you investigate in this unsettling attic?", ["Cautiously approach a large, shadowed corner, shrouded in deeper darkness and filled with an unnerving stillness.", "Desperately search for a way out through the boarded windows, hoping for a glimpse of the outside world."])
     if choice == 0:
@@ -232,7 +299,7 @@ def escape_ending_kitchen_pots():
 
 
 def death_ending_basement_symbols():
-    print("\nCompelled by a morbid curiosity, you lean closer to the wall and begin tracing the strange symbols etched into the stone. As your fingers brush against the cold glyphs, the guttering candle flame flares violently, casting grotesque shadows that writhe and coalesce into monstrous shapes, then abruptly extinguishes, plunging the passage into absolute, suffocating darkness.  A chilling voice, devoid of warmth or life, whispers directly into your ear, 'Curiosity… can be fatal.'")
+    print("\nCompelled by a morbid curiosity, you lean closer to the wall and begin tracing the strange symbols etched into the stone. As your fingers brush against the cold glyphs, the guttering candle flame flares violently, casting grotesque shadows that writhe and coalesce into monstrous shapes, then abruptly extinguishes, plunging the passage into absolute, suffocating darkness.  A chilling voice, devoid of warmth or life, whispers directly into your ear, 'Knowledge… has its price.'")
     print("Something unseen, something cold and impossibly strong, grasps you from the impenetrable darkness.  A silent scream tears through your throat, unheard in the echoing silence of the mansion.  Your reckless curiosity has become your agonizing doom. ")
     print("Death Ending: Symbol's Curse.")
 
@@ -256,6 +323,8 @@ def death_ending_pantry():
     print("A monstrous shape, unseen in the darkness, lunges from the shadows, its hot, fetid breath washing over you.  Razor-sharp teeth sink into your flesh, and a searing pain explodes through your body.  Your screams are muffled by the darkness and the monstrous presence that devours you in the suffocating confines of the pantry.  Your ill-advised bravery has led you to a gruesome end.")
     print("Death Ending: Pantry Predator.")
 
+
+player_inventory = [] # Initialize player inventory
 
 def play_game():
     creepy_intro()
