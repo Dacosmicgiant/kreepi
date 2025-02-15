@@ -1,13 +1,14 @@
 import random
 
 # Lore variables - set the backstory elements here
-BLACKWOOD_TRAGEDY = "a family murder-suicide"
-MANSION_PURPOSE = "a secluded research lab"
-HORROR_SOURCE = "a malevolent entity"
+BLACKWOOD_TRAGEDY = "a dark pact with an entity" # Changed lore to fit "Good" ending
+MANSION_PURPOSE = "a secluded research lab focused on spiritual energies" # Changed lore to fit "Good" ending
+HORROR_SOURCE = "restless spirits bound by a corrupted ritual" # Changed lore to fit "Good" ending
 
 lore_hints_found = set()
 player_inventory = []
 sanity_level = 100  # Initialize sanity level
+ghost_helped = False # Track if the player helped the ghost for ending variations
 
 def modify_sanity(amount):
     global sanity_level
@@ -175,6 +176,7 @@ def mansion_gates():
 def escape_ending_gates():
     print("\nYou insert the brass key into the lock of the iron gates. With a satisfying click, the tumblers turn, and the heavy gates swing open, revealing the moonlit path beyond the estate. You step out of Blackwood Mansion, leaving its horrors behind. The brass key, found in the greenhouse, was your salvation.")
     print("Escape Ending: Freedom at the Gates.")
+    trapped_ending_mansion_bound() # After basic escape, check for trapped ending condition
 
 
 def mansion_entrance():
@@ -225,11 +227,11 @@ def greenhouse_entrance():
 def greenhouse_interior():
     print("You cautiously step inside the greenhouse. Shattered glass crunches underfoot.  The air is humid and stifling, thick with the cloying perfume of exotic, overgrown plants. Strange, luminous fungi sprout from damp corners, casting an eerie glow.  Rows of neglected potting tables are covered in decaying leaves and strange, alchemical-looking tools. A sense of unnatural growth and decay permeates the space.")
     random_event("greenhouse_interior")
-    if MANSION_PURPOSE == "a secluded research lab" and "greenhouse_notes_hint" not in lore_hints_found and random.random() < 0.7:
+    if MANSION_PURPOSE == "a secluded research lab focused on spiritual energies" and "greenhouse_notes_hint" not in lore_hints_found and random.random() < 0.7:
         print("On a potting table, amidst the decay, you find a water-damaged notebook. Its pages are filled with frantic scientific notes and unsettling sketches of hybrid plants and creatures.")
         choice = make_choice("Do you attempt to decipher the water-damaged notes?", ["Yes, try to read the notes.", "No, the greenhouse is too unsettling, leave the notes."])
         if choice == 0:
-            print("\nYou carefully try to read the notes.  Words like 'hybridization,' 'mutation,' and 'accelerated growth' are legible, alongside disturbing sketches of plants with animalistic features.  The notes hint at dangerous experiments conducted within the greenhouse.")
+            print("\nYou carefully try to read the notes.  Words like 'hybridization,' 'mutation,' and 'accelerated growth' are legible, alongside disturbing sketches of plants with animalistic features.  The notes hint at dangerous experiments conducted within the greenhouse, focused on manipulating spiritual energies through plant life.") # Lore expanded
             lore_hints_found.add("greenhouse_notes_hint")
     choice = make_choice("What will you investigate within the greenhouse?", ["Examine the strange, luminous fungi growing in the corners.", "Search the neglected potting tables for anything of interest."])
     if choice == 0:
@@ -243,15 +245,17 @@ def walled_garden():
     if "garden_tombstone_hint" not in lore_hints_found and random.random() < 0.6:
         print("Near the back wall, you notice a small, weathered tombstone, almost hidden beneath overgrown ivy. It bears a single name: 'Eleanor Blackwood' and a chillingly short lifespan.")
 
-        riddle = "I have cities, but no houses. I have mountains, but no trees. I have water, but no fish. What am I?"
+        riddle = "I whisper truths, unseen, unheard, in shadows deep, my essence stirred. I yearn for peace, a gentle hand, to break the curse upon this land. What am I?" # Riddle changed to hint at "Good" ending
         choices = ["Attempt to solve the riddle on the tombstone.", "Ignore the tombstone and explore the garden further."]
         choice = make_choice(f"The tombstone seems to have a riddle inscribed below the name. It reads: '{riddle}' Do you:", choices)
 
         if choice == 0:
             player_answer = input("Enter your answer to the riddle: ").lower()
             if solve_riddle(player_answer):
-                print("\nCorrect! As you solve the riddle, you hear a faint grinding sound from behind the tombstone. Examining it closely, you discover a section of the stone is loose, revealing a hidden passage downwards!")
+                print("\nCorrect! As you solve the riddle, a faint whisper seems to brush against your ear, '...help me...' You hear a faint grinding sound from behind the tombstone. Examining it closely, you discover a section of the stone is loose, revealing a hidden passage downwards!")
                 servants_quarters_garden_passage() # Reveal passage upon riddle solve
+                global ghost_helped
+                ghost_helped = True # Player helped the ghost by solving riddle
                 return # Skip further walled garden choices as passage is now revealed
             else:
                 print("\nIncorrect. The tombstone remains unchanged, but you feel a chill in the air, as if something is displeased.")
@@ -266,7 +270,7 @@ def walled_garden():
 
 
 def solve_riddle(answer):
-    correct_answers = ["a map", "map"] # Acceptable answers for the riddle
+    correct_answers = ["a ghost", "ghost", "eleanor", "eleanor blackwood"] # Acceptable answers for the new riddle
     return answer in correct_answers
 
 
@@ -287,7 +291,7 @@ def servants_quarters_main_hall():
         print("At the end of the hallway, a door hangs ajar, revealing a dimly lit laundry room.  Peeking inside, you see a crumpled note lying on a washbasin.")
         choice = make_choice("Do you enter the laundry room and examine the note?", ["Yes, enter the laundry and read the note.", "No, the servant's quarters feel too oppressive, avoid the laundry."])
         if choice == 0:
-            print("\nYou enter the laundry room and pick up the crumpled note. It reads: 'Mistress is unwell... experiments changed her... locked away... cellar door is the only way...' The note is unsigned and soaked with what looks like tears.")
+            print("\nYou enter the laundry room and pick up the crumpled note. It reads: 'Mistress is unwell... experiments changed her... locked away... cellar door is the only way...' The note is unsigned and soaked with what looks like tears.") # Note updated to fit new lore
             lore_hints_found.add("servants_quarters_laundry_note_hint")
     choice = make_choice("What do you explore in the servant's quarters?", ["Try opening one of the small wooden doors leading to a servant's bedroom.", "Investigate the dimly lit laundry room at the end of the hall."])
     if choice == 0:
@@ -369,7 +373,7 @@ def dining_room():
         print("On the table, amidst the decaying food, you spot a slightly less decayed piece of paper. It seems to be a hastily scribbled note.")
         choice = make_choice("Do you try to read the note?", ["Yes, carefully examine the note.", "No, the stench is too much, leave it be."])
         if choice == 0:
-            print("\nYou carefully pick up the note. It reads, in faded ink: '...cannot contain it... experiments... gone too far... beware the cellar...' The rest is illegible.")
+            print("\nYou carefully pick up the note. It reads, in faded ink: '...cannot contain it... experiments... gone too far... beware the cellar...' The rest is illegible.") # Note updated to fit new lore
             lore_hints_found.add("dining_room_note_hint")
     choice = make_choice("What will you investigate in this unsettling dining room?", ["Examine the long, laden dining table and its decaying feast.", "Approach the cold, cavernous fireplace and peer within."])
     if choice == 0:
@@ -414,7 +418,7 @@ def chapel():
         print("On the altar, partially hidden beneath the black cloth, you find a small, leather-bound diary.")
         choice = make_choice("Do you examine the diary?", ["Yes, open and read the diary.", "No, leave it undisturbed, the chapel feels too unsettling."])
         if choice == 0:
-            print("\nYou open the diary. The pages are brittle and filled with frantic handwriting. You read: '...rituals... for power... family demanded it... something answered... wrong... so wrong... now it haunts us all...' The last entry is abruptly cut off.")
+            print("\nYou open the diary. The pages are brittle and filled with frantic handwriting. You read: '...rituals... to bind power... family sought control... something ancient answered... corrupted... now they suffer, and so does this house...' The last entry speaks of a 'cleansing ritual' but is incomplete.") # Diary updated to fit "Good" ending
             lore_hints_found.add("chapel_diary_hint")
     choice = make_choice("What do you do in this hidden chapel?", ["Examine the overturned pew, is anything hidden beneath it?", "Approach the altar and inspect it more closely."])
     if choice == 0:
@@ -457,8 +461,8 @@ def study_kitchen_door():
 def study():
     print("You open the sturdy wooden door and step into the study.  In stark contrast to the rest of the mansion, this room is relatively well-preserved, though still dusty and dimly lit by a single oil lamp flickering on a large desk.  Bookshelves line the walls, filled with volumes on arcane subjects, scientific equipment sits on tables, and charts and diagrams cover the walls.  The air is thick with the smell of old paper, ink, and a faint, metallic tang, reminiscent of the hallway.")
     random_event("study")
-    if MANSION_PURPOSE == "a secluded research lab" and "study_research_notes_hint" not in lore_hints_found and random.random() < 0.8:
-        print("On the large desk, illuminated by the oil lamp, you find a stack of research notes. They detail experiments in 'bio-energetics,' 'spiritual resonance,' and 'entity containment.' The notes become increasingly frantic and disturbing towards the end, hinting at a catastrophic breakthrough.")
+    if MANSION_PURPOSE == "a secluded research lab focused on spiritual energies" and "study_research_notes_hint" not in lore_hints_found and random.random() < 0.8:
+        print("On the large desk, illuminated by the oil lamp, you find a stack of research notes. They detail experiments in 'bio-energetics,' 'spiritual resonance,' and 'entity binding.' The notes become increasingly frantic and disturbing towards the end, hinting at a corrupted ritual and a catastrophic release of energy.") # Notes updated to fit "Good" ending
         lore_hints_found.add("study_research_notes_hint")
     choice = make_choice("What will you examine in the study?", ["Browse the bookshelves filled with arcane volumes.", "Investigate the scientific equipment scattered around the room.", "Search behind the bookshelves, looking for a hidden passage."])
     if choice == 0:
@@ -472,7 +476,7 @@ def study():
 def hidden_study():
     print("You push open the hidden staircase and emerge into a hidden, smaller study, even more secluded than the first.  This room is in disarray, papers scattered everywhere, equipment overturned, and a sense of frantic abandonment.  A single, bare lightbulb flickers erratically from the ceiling, casting harsh, distorted shadows.")
     random_event("study")
-    if MANSION_PURPOSE == "a secluded research lab" and "hidden_study_ritual_text_hint" not in lore_hints_found and random.random() < 0.7:
+    if MANSION_PURPOSE == "a secluded research lab focused on spiritual energies" and "hidden_study_ritual_text_hint" not in lore_hints_found and random.random() < 0.7:
         print("On a overturned table, you find a heavy, leather-bound book open to a page filled with unsettling diagrams and ritualistic text in a language you don't recognize.  Symbols similar to those in the basement and scullery are prominent.")
         lore_hints_found.add("hidden_study_ritual_text_hint")
     choice = make_choice("What will you investigate in this hidden study?", ["Attempt to decipher the ritualistic text in the book.", "Search through the scattered papers on the floor, hoping for a clue."])
@@ -494,12 +498,8 @@ def ritual_room_study_passage():
 def ritual_room():
     print("You descend into a large, subterranean chamber – the ritual room. The air is thick with the smell of ozone, incense, and something ancient and cold, like the breath of a tomb.  Strange symbols are etched into the stone walls, glowing faintly with an inner light.  In the center of the room, a raised stone platform serves as an altar, upon which strange artifacts are arranged – bones, crystals, and metallic instruments humming with energy.  The humming sound from above is deafening here, vibrating through your very bones.  A palpable sense of dark power and barely contained energy fills the chamber.")
     random_event("ritual_room")
-    if HORROR_SOURCE == "malevolent entity":
-        print("You feel an overwhelming presence here, a sense of ancient malice focused on this chamber. The air crackles with unseen energy, and the shadows seem to writhe and pulse with a life of their own.")
-    elif HORROR_SOURCE == "restless ghosts":
-        print("Spectral figures flicker around the edges of the chamber, their mournful whispers echoing in the humming silence.  They seem drawn to this place, trapped by the rituals performed here.")
-    elif HORROR_SOURCE == "psychological manifestation":
-        print("The symbols on the walls seem to shift and writhe before your eyes, and the artifacts on the altar pulse with a disturbing, organic rhythm.  Your own fears and anxieties seem to coalesce and amplify in this oppressive space.")
+    if HORROR_SOURCE == "restless spirits bound by a corrupted ritual": # Lore specific description
+        print("Spectral figures flicker around the edges of the chamber, their mournful whispers echoing in the humming silence.  They seem drawn to this place, trapped by the corrupted ritual performed here, their energy fueling the mansion's unrest.")
 
     choice = make_choice("What will you do in this terrifying ritual room?", ["Approach the altar and examine the strange artifacts.", "Search the walls for another exit, desperate to escape this place."])
     if choice == 0:
@@ -573,7 +573,7 @@ def survival_ending_chapel_altar():
     print("\nYou approach the altar and carefully examine the black cloth. As you lift a corner, you discover a small, silver locket hidden beneath.  It's cold to the touch and engraved with the Blackwood family crest.")
     print("As you touch the locket, a faint warmth spreads through you, and the oppressive atmosphere of the chapel seems to lighten slightly. You feel a sense of… protection? Perhaps this locket holds some significance. You decide to keep it.")
     player_inventory.append("silver_locket")
-    print("You feel a renewed sense of purpose.  Perhaps this locket can aid you in your escape. You decide to return to the hallway and explore other areas of the mansion.")
+    print("You feel a renewed sense of purpose.  Perhaps this locket can aid you in your escape or help resolve the mansion's mysteries. You decide to return to the hallway and explore other areas of the mansion.") # Hint towards "Good" ending path
     hallway()
 
 def survival_ending_study_equipment():
@@ -581,31 +581,38 @@ def survival_ending_study_equipment():
     print("As you touch the crystal, the device hums to life, emitting a beam of focused energy.  The beam strikes the wall behind the desk, and with a crackling sound, a section of the wall dissolves, revealing a hidden doorway leading outwards, into the night!")
     print("You quickly step through the doorway, emerging into the cool night air, leaving the study and Blackwood Mansion behind. You have escaped using the mansion's own strange technology!")
     print("Survival Ending: Scientific Escape.")
+    trapped_ending_mansion_bound() # After basic escape, check for trapped ending condition
+
 
 def escape_ending_basement():
     print("\nDriven by a desperate hope, you meticulously search the cold, damp chamber walls, your fingers tracing the rough-hewn stone. Behind a loose, water-stained tapestry depicting a faded hunting scene, you discover a crumbling section of wall, almost hidden in the shadows.  You pull the tapestry aside to reveal a narrow, damp tunnel, barely wide enough to squeeze through.")
     print("Ignoring the claustrophobic dread, you squeeze through the tunnel, crawling blindly for what feels like an eternity through earth and stone.  Finally, you emerge into the cool night air, collapsing onto soft earth, far from the mansion's oppressive presence. You have escaped the basement's suffocating depths!")
     print("Escape Ending: The Tunnel Run.")
+    trapped_ending_mansion_bound() # After basic escape, check for trapped ending condition
 
 def escape_ending_attic_window():
     print("\nDriven by a desperate need for escape, you cautiously approach the boarded windows, your heart pounding with a mixture of hope and fear.  Examining the aged wood, you discover one section near the corner that is noticeably weaker, the boards thinner and more brittle than the rest. Summoning a surge of adrenaline, you kick out with all your force, splintering the wood and creating a narrow, jagged escape route.")
     print("Ignoring the sharp edges, you climb out onto the steeply pitched roof, the wind whipping at your face.  Carefully, painstakingly, you make your way down the treacherous slope, clinging to crumbling gargoyles and moss-covered shingles.  You slide and scramble down the last section, dropping to the overgrown grounds below, leaving Blackwood Mansion silhouetted against the cold moon.  You have escaped the attic's chilling clutches!")
     print("Escape Ending: The Rooftop Descent.")
+    trapped_ending_mansion_bound() # After basic escape, check for trapped ending condition
 
 def escape_ending_kitchen_pots():
     print("\Driven by a hunch, you begin rummaging through the overturned pots and pans scattered across the kitchen floor.  Beneath a heavy, cast-iron cauldron, you discover a loose flagstone.  Prying it up with trembling hands, you reveal a narrow, earthen passage leading downwards.  A faint breath of fresh air wafts upwards, carrying the scent of soil and freedom.")
     print("Without hesitation, you squeeze into the passage and slide down a short, earthen slope.  You emerge into the cool night air, blinking against the sudden brightness of the moon, a safe distance from Blackwood Mansion. You have escaped through the kitchens!")
     print("Escape Ending: Kitchen Passage.")
+    trapped_ending_mansion_bound() # After basic escape, check for trapped ending condition
 
 def escape_ending_hidden_study_papers():
     print("\nYou begin frantically searching through the scattered papers on the floor of the hidden study.  Amidst the chaos, you find a hastily drawn map of the mansion, seemingly sketched in charcoal.  It marks a hidden exit in the walled garden, near the fountain!")
     print("Remembering the walled garden from your earlier exploration, you realize this might be your best chance. You decide to retrace your steps back through the library and garden, eventually reaching the walled garden and the crumbling fountain.  There, just as the map indicated, you find a section of the wall that crumbles away easily, revealing an opening to the outside world. You escape Blackwood Mansion, guided by a hidden map!")
     print("Escape Ending: The Cartographer's Clue.")
+    trapped_ending_mansion_bound() # After basic escape, check for trapped ending condition
 
 def escape_ending_ritual_chamber_exit():
     print("\nOverwhelmed by the oppressive atmosphere of the ritual chamber, you desperately search the walls for any sign of escape.  Behind a tapestry depicting grotesque figures performing a dark ritual, you discover a narrow crack in the stone.  Working frantically, you widen the crack, revealing a rough-hewn tunnel leading upwards.")
     print("You scramble through the tunnel, climbing upwards through damp earth and rough stone.  Finally, you emerge into the night air, breathless and shaken, but free from the ritual chamber and the horrors of Blackwood Mansion. You have escaped the heart of darkness!")
     print("Escape Ending: Chamber Escape.")
+    trapped_ending_mansion_bound() # After basic escape, check for trapped ending condition
 
 def escape_ending_servants_bedroom_chest():
     print("\nYou open the rough wooden chest at the foot of the cot. Inside, amongst moth-eaten blankets and worn clothing, you find a small, rusty KEY and a tarnished SILVER WHISTLE.")
@@ -616,72 +623,113 @@ def escape_ending_servants_bedroom_chest():
 
 
 def final_ending_ritual_altar():
-    print("\Summoning a strange mix of fear and morbid curiosity, you approach the altar in the center of the ritual chamber.  The artifacts arranged upon it hum with an unsettling energy, and the symbols on the walls seem to pulse in response as you draw closer.")
+    print("\nSummoning a strange mix of fear and morbid curiosity, you approach the altar in the center of the ritual chamber.  The artifacts arranged upon it hum with an unsettling energy, and the symbols on the walls seem to pulse in response as you draw closer.")
     if "silver_locket" in player_inventory:
-        print("\nAs you reach the altar, you instinctively hold out the silver locket you found in the chapel.  The locket begins to glow with a soft, white light, and the humming in the chamber intensifies, but now with a different quality – a resonance, rather than a threat.")
-        print("The symbols on the walls flare brightly, and a wave of energy washes over you, emanating from the altar and the locket in your hand.  The oppressive atmosphere of the chamber begins to dissipate, replaced by a sense of… peace?")
-        print("The malevolent presence you felt throughout the mansion seems to recede, the shadows lose their depth, and the air becomes lighter.  You feel a profound sense of release, as if the mansion itself is sighing in relief.")
-        print("True Ending: The Cleansing.")
+        good_ending_blackwood_rest() # Trigger "Good" ending if locket is present
     else:
-        print("\nAs you reach the altar, the humming intensifies to a deafening roar. The artifacts begin to vibrate violently, and the symbols on the walls blaze with malevolent energy.  The air crackles and distorts around you, and the sense of dread becomes overwhelming.")
-        print("Suddenly, the chamber floor beneath you cracks open, and you plunge into an abyss of pure darkness.  Screaming, you fall into the unknown depths, the ritual chamber above swallowing your cries.  You have succumbed to the power of the ritual, becoming another sacrifice to the darkness that Blackwood Mansion conceals.")
-        print("Death Ending: Ritual Sacrifice.")
+        death_ending_ritual_sacrifice() # "Bad" ending if no locket
+
+
+def good_ending_blackwood_rest(): # "Good" Ending
+    print("\nAs you reach the altar, you instinctively hold out the silver locket you found in the chapel.  The locket begins to glow with a soft, white light, and the humming in the chamber intensifies, but now with a different quality – a resonance of peace, rather than a threat.")
+    print("The spectral figures around the chamber flicker and coalesce, becoming clearer, their mournful expressions softening with hope.  The symbols on the walls flare brightly, and a wave of pure, cleansing energy washes over you, emanating from the altar and the locket in your hand.")
+    print("The oppressive atmosphere of the chamber and the entire mansion begins to lift. The restless spirits, finally acknowledged and aided, find their peace. The darkness recedes, replaced by a sense of calm and resolution.")
+    print("You feel a gentle presence beside you – Eleanor Blackwood, her spectral form now serene and smiling faintly. 'Thank you,' she whispers, her voice like the chime of distant bells. 'You have freed us.'")
+    print("The mansion no longer feels malevolent, but sorrowful, yet at peace. You leave Blackwood Mansion, the curse lifted, the spirits finally at rest, and the truth of the Blackwood tragedy brought to light. You have brought peace to Blackwood.")
+    print("Good Ending: Blackwood Rest.")
+
+def secret_ending_true_escape(): # "Secret" Ending
+    if "silver_whistle" in player_inventory and ghost_helped: # Example condition: silver whistle and helped ghost
+        print("\nAs you stand at the gates, ready to escape, you remember the silver whistle found in the servant's bedroom.  On a whim, you raise it to your lips and blow a single, clear note into the night air. The whistle emits a sound not of this world, a high, resonant tone that seems to vibrate through the very stones of Blackwood.")
+        print("The gargoyles atop the gates seem to stir, and the air shimmers.  A hidden pathway, unseen before, materializes beyond the gates, bathed in an ethereal moonlight. This is not the path back to the mundane world, but something… else. Something beyond Blackwood, a true escape.")
+        print("You realize this whistle is the key, not just to leaving the mansion, but to transcending its influence entirely. You step onto the hidden path, leaving Blackwood Mansion behind, not just physically, but spiritually. You have found a true escape, a path to somewhere beyond the veil of this haunted place.")
+        print("Secret Ending: True Transcendence.")
+    else:
+        trapped_ending_mansion_bound() # If secret ending conditions not met, default to trapped ending
+
+
+def trapped_ending_mansion_bound(): # "Trapped Forever" Ending
+    print("\nYou manage to escape Blackwood Mansion, stumbling out into the night, gasping for breath and the taste of fresh air. You flee the estate, not daring to look back, the image of the mansion burned into your mind.")
+    print("But even as you put distance between yourself and Blackwood, you feel a lingering chill, a sense of being watched, a whisper in the back of your mind that echoes the mansion's oppressive silence. You are free, yet… not truly free.")
+    print("You carry Blackwood with you, its darkness clinging to your soul, its secrets forever entwined with your sanity. You have escaped the mansion, but Blackwood has not escaped you. Its influence, its curse, remains, a haunting echo in your life forevermore.")
+    print("Trapped Forever Ending: Mansion's Echo.")
+
+
+def death_ending_ritual_sacrifice(): # "Bad" Ending: Ritual Sacrifice
+    print("\nAs you reach the altar, the humming intensifies to a deafening roar. The artifacts begin to vibrate violently, and the symbols on the walls blaze with malevolent energy.  The air crackles and distorts around you, and the sense of dread becomes overwhelming.")
+    print("Suddenly, the chamber floor beneath you cracks open, and you plunge into an abyss of pure darkness.  Screaming, you fall into the unknown depths, the ritual chamber above swallowing your cries.  You have succumbed to the power of the corrupted ritual, becoming another sacrifice to the darkness that Blackwood Mansion conceals.")
+    print("Death Ending: Ritual Sacrifice.")
+
+def death_ending_driven_madness(): # "Bad" Ending: Driven to Madness
+    print("\nThe oppressive atmosphere of Blackwood Mansion, the constant dread, the unsettling visions and whispers, finally shatter your sanity.  Your thoughts become fragmented, reality blurs with nightmare, and the line between the mansion's horrors and your own mind dissolves.")
+    print("You wander the halls, no longer seeking escape, but lost within the labyrinth of your own fractured psyche.  The mansion's darkness has become your own, its whispers your inner voice.  You are trapped, not by walls of stone, but by the walls of madness, forever lost within the echoing chambers of your broken mind.")
+    print("Death Ending: Driven to Madness.")
+
+def death_ending_consumed_by_mansion(): # "Bad" Ending: Consumed by the Mansion
+    print("\nBlackwood Mansion, a sentient entity of stone and shadow, has marked you as its own.  As you stumble through its halls, seeking escape, the mansion itself turns against you.  Shadows lengthen and solidify, doorways twist into impossible angles, and the very walls seem to close in, suffocating you.")
+    print("You are no longer simply exploring a haunted house, but trapped within the belly of a living nightmare.  The mansion consumes you, its darkness seeping into your being, its silence swallowing your screams.  You become part of Blackwood now, another lost soul absorbed into its oppressive, eternal presence.")
+    print("Death Ending: Consumed by the Mansion.")
+
+def death_ending_death_by_shadows(): # "Bad" Ending: Death by Shadows
+    print("\nThe shadows of Blackwood Mansion, no longer mere absence of light, but malevolent entities in themselves, gather around you.  Drawn by your fear and despair, they coalesce into grasping, suffocating forms, their touch icy cold, their presence draining your life force.")
+    print("You struggle against the encroaching darkness, but it is like fighting the very air itself.  The shadows envelop you completely, extinguishing the light within you, leaving behind only a hollow shell, another victim claimed by the sentient darkness of Blackwood Mansion. You are extinguished, fading into shadow.")
+    print("Death Ending: Death by Shadows.")
 
 
 def death_ending_basement_symbols():
     print("\nCompelled by a morbid curiosity, you lean closer to the wall and begin tracing the strange symbols etched into the stone. As your fingers brush against the cold glyphs, the guttering candle flame flares violently, casting grotesque shadows that writhe and coalesce into monstrous shapes, then abruptly extinguishes, plunging the passage into absolute, suffocating darkness.  A chilling voice, devoid of warmth or life, whispers directly into your ear, 'Knowledge… has its price.'")
     print("Something unseen, something cold and impossibly strong, grasps you from the impenetrable darkness.  A silent scream tears through your throat, unheard in the echoing silence of the mansion.  Your reckless curiosity has become your agonizing doom. ")
-    print("Death Ending: Symbol's Curse.")
+    print("Death Ending: Symbol's Curse.") # Existing death ending
 
 def death_ending_pool():
     print("\nDespite the overwhelming sense of dread, a morbid fascination draws you to the edge of the dark pool.  You lean closer, peering into its still, black depths, trying to discern what lies beneath the surface. Suddenly, with shocking speed, a frigid, skeletal hand erupts from the water, its grip like iron, seizing your wrist and dragging you inexorably downwards into the icy blackness.")
     print("You claw at the slick stone edges, desperate for purchase, but the unseen force is implacable.  The dark water closes over your head, swallowing your panicked cries and extinguishing the last vestiges of light.  The pool, a gateway to something ancient and malevolent, claims another soul for its silent depths.")
-    print("Death Ending: Drowned in Darkness.")
+    print("Death Ending: Drowned in Darkness.") # Existing death ending
 
 def death_ending_attic_corner():
     print("\nIgnoring the prickling unease, you cautiously approach the shadowed corner, your heart hammering a frantic tattoo against your ribs. As you reach out a trembling hand to touch the cold wall, something lunges from the impenetrable darkness with terrifying speed and ferocity – a grotesque, shadowy figure, vaguely humanoid yet horribly distorted, its eyes burning with malevolent red light.")
     print("It shrieks, a sound that tears at your sanity, a discordant symphony of pain and rage, and its icy claws, sharp as shards of glass, tear into your flesh. You stumble back, a strangled cry escaping your lips, as your lifeblood drains away onto the dusty floorboards of the attic.  The shadow, a guardian of forgotten horrors, claims you as its own.")
-    print("Death Ending: Shadow's Embrace.")
+    print("Death Ending: Shadow's Embrace.") # Existing death ending
 
 def death_ending_dining_table():
     print("\nIgnoring the overwhelming stench, you steel yourself and approach the decaying feast laid out on the long dining table.  As you reach out to examine a particularly grotesque dish – a half-eaten bird, its feathers matted with congealed blood – the room plunges into absolute darkness.  A chorus of guttural whispers erupts around you, too indistinct to understand, yet filled with palpable malice.  From the shadows, skeletal hands reach out, grasping and tearing.")
     print("You scream, a sound swallowed by the darkness and the chorus of whispers, as the unseen horrors of the dining room descend upon you, tearing you apart amidst the decaying remnants of a cursed feast. Your morbid curiosity has become your final, agonizing meal.")
-    print("Death Ending: Feast of the Damned.")
+    print("Death Ending: Feast of the Damned.") # Existing death ending
 
 def death_ending_pantry():
     print("\Taking a deep, shuddering breath, you steel yourself and step into the shadowed pantry.  The heavy wooden door creaks shut behind you with unnatural force, plunging you into near-total darkness.  The earthy, animalistic smell intensifies, becoming overpowering, and you hear a low growl echoing from the depths of the small space.  Suddenly, something brushes against your leg – something cold, wet, and scaled.")
     print("A monstrous shape, unseen in the darkness, lunges from the shadows, its hot, fetid breath washing over you.  Razor-sharp teeth sink into your flesh, and a searing pain explodes through your body.  Your screams are muffled by the darkness and the monstrous presence that devours you in the suffocating confines of the pantry.  Your ill-advised bravery has led you to a gruesome end.")
-    print("Death Ending: Pantry Predator.")
+    print("Death Ending: Pantry Predator.") # Existing death ending
 
 def death_ending_greenhouse_fungi():
     print("\nYou cautiously approach the strange, luminous fungi growing in the corners of the greenhouse.  Mesmerized by their eerie glow, you reach out to touch one.  As your fingers brush against the soft, pulsating cap, a jolt of icy energy surges through your arm, paralyzing you.  The fungi begin to emit a cloud of phosphorescent spores, filling the air around you.")
     print("You gasp for breath as the spores fill your lungs, a burning cold spreading through your body.  Your vision blurs, and you collapse onto the shattered glass floor, your life force consumed by the unnatural fungi of the greenhouse. Your curiosity proves fatal in this garden of horrors.")
-    print("Death Ending: Fungal Consumption.")
+    print("Death Ending: Fungal Consumption.") # Existing death ending
 
 def death_ending_garden_flowers():
     print("\nYou cautiously approach the night-blooming flowers, drawn in by their intoxicating scent and strange beauty.  As you lean closer to inhale their perfume, the blossoms suddenly unfurl, revealing rows of needle-sharp thorns and pulsating, fleshy interiors.  The cloying scent intensifies, becoming sickeningly sweet, and you feel a wave of dizziness wash over you.")
     print("Thorns lash out, piercing your skin, and a viscous, pollen-like substance coats your face.  You stumble back, choking and gasping, as the flowers' toxins enter your bloodstream.  Your vision fades, the beautiful garden transforming into a swirling vortex of color and pain.  The garden's beauty becomes your deadly allure.")
-    print("Death Ending: Floral Poison.")
+    print("Death Ending: Floral Poison.") # Existing death ending
 
 def death_ending_servants_bedroom_mirror():
     print("\nDespite the unease, you approach the cracked mirror and gaze into your reflection.  The glass is cloudy and distorted, and your own image seems strangely… wrong, subtly altered and unsettling.  As you stare deeper, the reflection begins to shift and writhe, your features twisting into a grotesque mockery of yourself.")
     print("A cold dread washes over you as the reflection's eyes fixate on yours, burning with malevolent intent.  A spectral hand reaches out from the mirror's surface, passing through the glass and grasping your throat.  You gasp for air, your reflection now a monstrous, grinning visage, as your life is stolen by the haunted mirror of the servant's bedroom. Your vanity becomes your demise.")
-    print("Death Ending: Mirror's Grasp.")
+    print("Death Ending: Mirror's Grasp.") # Existing death ending
 
 def death_ending_servants_laundry_mangle():
     print("\nYou cautiously approach the heavy mangle, its iron rollers radiating a chilling cold.  Intrigued by its mechanism, you reach out to touch the rollers.  Suddenly, with a deafening CLANG, the mangle springs to life, its heavy rollers snapping shut with terrifying force.")
     print("Your hand is caught in the unforgiving iron grip, bones shattering instantly.  You scream in agony, struggling to free yourself, but the mangle continues to grind and crush, pulling you further into its deadly embrace.  The laundry room's silent machinery becomes your instrument of torture and death.  Your curiosity becomes your mutilation.")
-    print("Death Ending: Mangle's Crush.")
+    print("Death Ending: Mangle's Crush.") # Existing death ending
 
 def death_ending_scullery_sink():
     print("\nYou lean over the grimy stone sink, peering into its depths, hoping to find a drain or hidden opening.  As you gaze into the stagnant water, the surface ripples unnaturally, and a pair of luminous, reptilian eyes open beneath the murky depths, staring back at you with cold, predatory hunger.")
     print("A serpentine form erupts from the sink with shocking speed, its jaws lined with rows of needle-sharp teeth snapping at your face.  You recoil in horror, but not fast enough.  The creature’s fangs sink into your flesh, injecting a potent venom.  You collapse onto the damp stone floor, your vision blurring, as the scullery sink reveals its hidden, monstrous inhabitant. Your investigation becomes your consumption.")
-    print("Death Ending: Sink Serpent.")
+    print("Death Ending: Sink Serpent.") # Existing death ending
 
 def death_ending_study_bookshelves():
     print("\nYou begin Browse the towering bookshelves, running your fingers along the spines of ancient tomes.  As you reach for a particularly intriguing volume bound in human skin, the bookshelves around you begin to groan and shift.  The room suddenly plunges into near darkness, and the bookshelves begin to close in, walls of heavy wood and crushing knowledge.")
     print("You realize, with dawning horror, that you are trapped.  The bookshelves are moving, slowly but inexorably, squeezing the air from your lungs.  You struggle against the implacable wooden walls, but it's no use.  The library itself becomes your tomb, crushing you beneath the weight of forbidden lore. Your thirst for knowledge becomes your suffocation.")
-    print("Death Ending: Bookcase Tomb.")
+    print("Death Ending: Bookcase Tomb.") # Existing death ending
 
 
 def play_game():
