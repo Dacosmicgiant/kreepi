@@ -1,3 +1,5 @@
+### A text based horror game
+
 blackwood_mansion_game/
 ├── core/
 │ ├── game_state.py # Manages player inventory, sanity, and game flags
